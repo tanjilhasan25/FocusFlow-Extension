@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FocusFlow Cockpit</title>
+  <style>
+    body {
+      width: 360px;
+      margin: 0;
+      padding: 18px;
+      background: #090d16;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #00f2fe;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid #00f2fe;
+      color: #00f2fe;
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .card-title {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .metric-subtitle {
+      font-size: 11px;
+      color: #00f2fe;
+      margin-top: 4px;
+    }
+    .context-box {
+      font-size: 12px;
+      color: #cbd5e1;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-left: 3px solid #00f2fe;
+      border-radius: 4px;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      border: none;
+      border-radius: 8px;
+      color: #090d16;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="title">⚡ FocusFlow</div>
+    <div class="status-badge">SHIELD ACTIVE</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cognitive Resumption Anchor</div>
+    <div id="context-text" class="context-box">No spatial dwell context captured yet. Move cursor on text for 5s.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div class="card">
+      <div class="card-title">Spatial Dwells</div>
+      <div id="dwell-count" class="metric-value">0</div>
+      <div class="metric-subtitle">Positions Saved</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Intent Shields</div>
+      <div id="shield-count" class="metric-value">0</div>
+      <div class="metric-subtitle">Switches Intercepted</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cognitive Recovery Score (CRS)</div>
+    <div id="crs-score" class="metric-value" style="color:#00f2fe;">94%</div>
+    <div class="metric-subtitle">High Mental Flow Retention</div>
+  </div>
+
+  <button id="reset-btn" class="btn">Reset Session Metrics</button>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

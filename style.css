@@ -1,0 +1,44 @@
+/* Futuristic Active Context Highlighting */
+.focusflow-active-context {
+  outline: 2px dashed #00f2fe !important;
+  background-color: rgba(0, 242, 254, 0.12) !important;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.35) !important;
+  transition: all 0.4s ease-in-out !important;
+  border-radius: 6px !important;
+}
+
+/* Strict Non-Bypass Protection for YouTube Distraction Zones */
+#related, 
+#contents.ytd-rich-grid-renderer, 
+#comments, 
+ytd-reel-shelf-renderer {
+  filter: blur(18px) opacity(0.12) !important;
+  pointer-events: none !important; /* Completely blocks mouse interactions */
+  transition: filter 0.5s ease !important;
+}
+
+/* Futuristic HUD Toast Overlay */
+#focusflow-hud-toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: rgba(10, 15, 29, 0.95);
+  border: 1px solid #00f2fe;
+  color: #e2e8f0;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+  z-index: 99999999;
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: hudSlideUp 0.4s ease-out;
+}
+
+@keyframes hudSlideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
