@@ -1,547 +1,125 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow - Camera-Free Reading Context Recovery & Shielding</title>
+    <title>FocusFlow Enterprise - Multi-User Deep Work & Context Engine</title>
     <style>
         :root {
-            --bg-blue-dark: #0f172a;
-            --bg-blue-card: #1e293b;
-            --accent-blue: #38bdf8;
-            --accent-glow: #0284c7;
+            --bg-dark: #07090e;
+            --bg-card: #111827;
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.2);
             --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --blink-color: #f59e0b;
+            --text-muted: #94a3b8;
             --danger: #ef4444;
             --success: #22c55e;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-blue-dark);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        /* Multi-User Sidebar */
+        .sidebar { width: 340px; background: var(--bg-card); border-right: 1px solid #1f2937; display: flex; flex-direction: column; padding: 20px; gap: 20px; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .user-profile { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid #374151; display: flex; align-items: center; gap: 10px; }
+        
+        .active-peers { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .peer-badge { background: #1f2937; padding: 10px; border-radius: 6px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--accent); }
 
-        /* Sidebar Dashboard Navigation */
-        .sidebar {
-            width: 320px;
-            background-color: var(--bg-blue-card);
-            border-right: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 20px;
-            overflow-y: auto;
-        }
+        /* Main Workspace */
+        .main { flex: 1; display: flex; flex-direction: column; background: #020617; }
+        .topbar { height: 60px; background: var(--bg-card); border-bottom: 1px solid #1f2937; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+        
+        .workspace { flex: 1; padding: 40px; overflow-y: auto; display: flex; gap: 30px; }
+        .document-pane { flex: 2; background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid #1f2937; line-height: 1.8; font-size: 1.1rem; }
+        .analytics-pane { flex: 1; display: flex; flex-direction: column; gap: 20px; }
 
-        .logo-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #334155;
-        }
+        .stat-box { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid #1f2937; }
+        .stat-box h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; }
+        .stat-box .value { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
 
-        .logo-box h2 {
-            font-size: 1.4rem;
-            color: var(--accent-blue);
-        }
-
-        .stat-card {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .stat-card h4 {
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--accent-blue);
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .control-group label {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent-blue);
-        }
-
-        .toggle-switch {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-        }
-
-        .toggle-switch input {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Main Reading Sandbox Workspace */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #020617;
-            position: relative;
-        }
-
-        .top-nav {
-            height: 60px;
-            background: var(--bg-blue-card);
-            border-bottom: 1px solid #334155;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-        }
-
-        .tab-btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .tab-btn {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: var(--text-sub);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: 0.3s;
-        }
-
-        .tab-btn.active {
-            background: var(--accent-blue);
-            color: #000;
-            font-weight: bold;
-        }
-
-        .workspace {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        /* Reading Area Styling */
-        .reading-container {
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
-            font-size: 1.1rem;
-            color: #cbd5e1;
-        }
-
-        .reading-container p {
-            margin-bottom: 25px;
-            padding: 10px;
-            border-radius: 6px;
-            transition: background 0.3s;
-        }
-
-        /* Blinking Last Word Highlight */
-        .word-blink {
-            background-color: var(--blink-color);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            animation: pulse-glow 1s infinite alternate;
-        }
-
-        @keyframes pulse-glow {
-            from { box-shadow: 0 0 5px var(--blink-color); }
-            to { box-shadow: 0 0 20px var(--blink-color); }
-        }
-
-        /* Viewport Fallback Highlight */
-        .viewport-highlight {
-            border-left: 4px solid var(--accent-blue);
-            background: rgba(56, 189, 248, 0.08);
-        }
-
-        /* Simulated Ads & Shielding */
-        .ad-banner {
-            background: #ef444422;
-            border: 2px dashed var(--danger);
-            color: var(--danger);
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .ad-banner.blurred {
-            filter: blur(12px);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Anti-Distraction Modal (Cat Guard) */
-        .modal-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background: var(--bg-blue-card);
-            border: 2px solid var(--accent-blue);
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .cat-avatar {
-            font-size: 4rem;
-            margin-bottom: 10px;
-        }
-
-        .modal-card button {
-            margin: 10px 5px 0 5px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-stay { background: var(--success); color: white; }
-        .btn-exit { background: var(--danger); color: white; }
-
-        /* Bottom Floating Recovery Bar */
-        .floating-bar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-blue-card);
-            border: 1px solid var(--accent-blue);
-            padding: 12px 25px;
-            border-radius: 30px;
-            display: none;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            z-index: 500;
-        }
-
-        .floating-bar button {
-            background: var(--accent-blue);
-            color: #000;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* YouTube Simulated Sandbox */
-        .yt-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .yt-video {
-            background: #000;
-            height: 350px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-sub);
-        }
-
-        .yt-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .yt-card {
-            background: var(--bg-blue-card);
-            height: 80px;
-            border-radius: 8px;
-            padding: 10px;
-            transition: filter 0.3s;
-        }
+        .btn { background: linear-gradient(135deg, #00f2fe, #4facfe); border: none; padding: 10px 20px; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn:hover { box-shadow: 0 0 15px var(--accent-glow); }
     </style>
 </head>
 <body>
 
-    <!-- Accessible Blue Dashboard Sidebar -->
+    <!-- Multi-User Sidebar & Peer Sync -->
     <div class="sidebar">
-        <div class="logo-box">
-            <span style="font-size: 1.8rem;">🎯</span>
-            <h2>FocusFlow</h2>
+        <div class="logo">⚡ FocusFlow Enterprise</div>
+        
+        <div class="user-profile">
+            <div style="width: 35px; height: 35px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000;">TB</div>
+            <div>
+                <div style="font-weight: bold; font-size: 0.95rem;">Tanjil Hasan (Host)</div>
+                <div style="font-size: 0.75rem; color: var(--success);">● Multi-User Room Synced</div>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <h4>Saved Focus Time</h4>
-            <p id="stat-time">14m 32s</p>
+        <h4 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Active Collaborative Peers</h4>
+        <div class="active-peers" id="peer-list">
+            <div class="peer-badge"><span>Alex Morgan (Reading Paper #2)</span><span style="color:var(--success);">Focus</span></div>
+            <div class="peer-badge"><span>Sarah Jenkins (Deep Workspace)</span><span style="color:var(--success);">Focus</span></div>
+            <div class="peer-badge"><span>Dr. Rahman (Supervisor Node)</span><span style="color:var(--accent);">Observing</span></div>
         </div>
 
-        <div class="stat-card">
-            <h4>Dwell Restorations</h4>
-            <p id="stat-restores">28 Lines</p>
-        </div>
-
-        <div class="control-group">
-            <label>YouTube Blur Opacity <span id="opacity-val">70%</span></label>
-            <input type="range" id="blur-slider" min="0" max="100" value="70">
-        </div>
-
-        <div class="toggle-switch">
-            <span>Ad/Trap Blocker</span>
-            <input type="checkbox" id="toggle-adblock" checked>
-        </div>
-
-        <div class="toggle-switch">
-            <span>Tab Switching Guard</span>
-            <input type="checkbox" id="toggle-guard" checked>
-        </div>
-
-        <div class="stat-card" style="margin-top: auto; background: #0f172a;">
-            <h4>Extension Status</h4>
-            <p style="color: var(--success); font-size: 0.9rem;">● Active & Shielding</p>
-        </div>
+        <button class="btn" onclick="invitePeer()">+ Invite Peer to Room</button>
     </div>
 
-    <!-- Main Active Workspace -->
-    <div class="main-content">
-        <div class="top-nav">
-            <div class="tab-btn-group">
-                <button class="tab-btn active" onclick="switchSandbox('news')">📰 News/Article View</button>
-                <button class="tab-btn" onclick="switchSandbox('youtube')">▶️ YouTube Platform</button>
-                <button class="tab-btn" onclick="switchSandbox('pdf')">📄 PDF Reader Mode</button>
-            </div>
-            <button class="tab-btn" style="border-color: var(--danger); color: var(--danger);" onclick="triggerDistractionTab()">Simulate Tab Change 🚨</button>
+    <!-- Main Workspace -->
+    <div class="main">
+        <div class="topbar">
+            <h2>Deep Academic Workspace & Context Mesh</h2>
+            <div style="font-size: 0.9rem; color: var(--text-muted);">Session ID: #FF-9042-X</div>
         </div>
 
-        <!-- Sandbox 1: News Article Reader -->
-        <div id="sandbox-news" class="workspace">
-            <div class="reading-container">
-                <h1 style="color: var(--text-main); margin-bottom: 20px;">Human-Computer Interaction in Modern Digital Reading</h1>
-                
-                <p id="p1">Reading long-form digital content often involves frequent interruptions and context switching. Studies show that users spend up to 20% of their reading time simply relocating their position after tab switching.</p>
-
-                <!-- Ad Trap Simulation -->
-                <div class="ad-banner" id="ad-box-1">
-                    ⚠️ Annoying Pop-up Advertisement (Auto-Shielded by FocusFlow Shadow DOM)
-                </div>
-
-                <p id="p2">FocusFlow solves this bottleneck using a camera-free approach. By tracking cursor dwell times without privacy risks, it bookmarks exact reading coordinates seamlessly.</p>
-
-                <p id="p3">When mouse movement is absent, Viewport Center algorithms take over as a fallback mechanism. This guarantees continuous tracking across all scrolling behaviors.</p>
+        <div class="workspace">
+            <div class="document-pane" id="doc-content">
+                <h1 style="margin-bottom: 20px; color: var(--accent);">Human-Computer Interaction: Multi-User Focus Synchronization</h1>
+                <p style="margin-bottom: 15px;">This enterprise-grade architecture addresses multi-user cognitive drift by synchronizing spatial dwell telemetry across collaborative nodes in real time.</p>
+                <p style="margin-bottom: 15px;">When a user loses focus or switches context, fallback algorithms calculate exact viewport offsets, broadcasting recovery markers to all connected peers securely.</p>
+                <p>Advanced non-bypassable shielding removes external DOM distractions, ensuring uninterrupted academic output.</p>
             </div>
-        </div>
 
-        <!-- Sandbox 2: YouTube Shielding -->
-        <div id="sandbox-youtube" class="workspace" style="display: none;">
-            <div class="yt-grid">
-                <div>
-                    <div class="yt-video">
-                        🎥 Main Video Stream [Resume Marker: 04m 12s]
-                    </div>
-                    <h3 style="margin-top: 15px;">CSE490 HCI Course Lecture Video</h3>
+            <div class="analytics-pane">
+                <div class="stat-box">
+                    <h3>Team Cognitive Flow Index</h3>
+                    <div class="value" id="team-flow">94.8%</div>
                 </div>
-                <div class="yt-sidebar" id="yt-recommendations">
-                    <div class="yt-card">Recommended Video 1</div>
-                    <div class="yt-card">Recommended Video 2</div>
-                    <div class="yt-card">Recommended Video 3</div>
+                <div class="stat-box">
+                    <h3>Spatial Context Syncs</h3>
+                    <div class="value" id="sync-count">42 Nodes</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Distraction Blocks</h3>
+                    <div class="value" id="block-count">12 Intercepts</div>
                 </div>
             </div>
         </div>
-
-        <!-- Sandbox 3: PDF Document Reader -->
-        <div id="sandbox-pdf" class="workspace" style="display: none;">
-            <div class="reading-container" style="background: #1e293b; padding: 30px; border-radius: 10px;">
-                <h2>📄 Academic_Paper_HCI_2026.pdf</h2>
-                <hr style="margin: 15px 0; border-color: #334155;">
-                <p id="pdf-p1">Abstract: Context recovery mechanism without camera trackers improves reader focus retention by 35% across multi-tab environments.</p>
-                <p id="pdf-p2">Methodology: Dwell time detection measures static cursor coordinates over paragraph DOM blocks.</p>
-            </div>
-        </div>
-
-        <!-- Floating Recovery Bar -->
-        <div class="floating-bar" id="recovery-bar">
-            <span>📍 You were reading here 12 seconds ago.</span>
-            <button onclick="restorePosition()">Go to Last Spot 🎯</button>
-        </div>
-
-        <!-- Anti-Distraction Modal Guard -->
-        <div class="modal-overlay" id="guard-modal">
-            <div class="modal-card">
-                <div class="cat-avatar">🐱</div>
-                <h3>Stay Focused!</h3>
-                <p style="color: var(--text-sub); margin: 10px 0;">Are you sure you want to switch tabs? You are currently in the middle of reading!</p>
-                <div>
-                    <button class="btn-stay" onclick="closeGuard(true)">Stay Here 📚</button>
-                    <button class="btn-exit" onclick="closeGuard(false)">Exit Tab 🚪</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        // State variables
-        let lastDwellElement = null;
-        let lastDwellWord = "";
-        let savedTimeSeconds = 872;
-        let restoreCount = 28;
+        // Simulate Real-time Multi-User Peer Activity Updates
+        setInterval(() => {
+            const syncVal = Math.floor(Math.random() * 5) + 40;
+            document.getElementById('sync-count').innerText = syncVal + " Nodes";
+            
+            const blockVal = Math.floor(Math.random() * 3) + 10;
+            document.getElementById('block-count').innerText = blockVal + " Intercepts";
+        }, 4000);
 
-        // Dwell tracking simulator (5-second mouse hover logic)
-        document.querySelectorAll('.reading-container p').forEach(para => {
-            let timer;
-            para.addEventListener('mouseenter', (e) => {
-                timer = setTimeout(() => {
-                    // Remove previous highlights
-                    document.querySelectorAll('.word-blink').forEach(el => el.classList.remove('word-blink'));
-                    document.querySelectorAll('.viewport-highlight').forEach(el => el.classList.remove('viewport-highlight'));
-
-                    // Get last word & highlight
-                    const words = para.innerText.trim().split(" ");
-                    const lastWord = words[words.length - 1];
-                    para.innerHTML = para.innerText.replace(lastWord, `<span class="word-blink">${lastWord}</span>`);
-                    
-                    lastDwellElement = para;
-                    restoreCount++;
-                    document.getElementById('stat-restores').innerText = restoreCount + " Lines";
-                }, 2000); // 2s Dwell
-            });
-
-            para.addEventListener('mouseleave', () => clearTimeout(timer));
-        });
-
-        // Viewport center fallback
-        const workspace = document.getElementById('sandbox-news');
-        workspace.addEventListener('scroll', () => {
-            if (!lastDwellElement) {
-                const paras = document.querySelectorAll('#sandbox-news p');
-                paras.forEach(p => {
-                    const rect = p.getBoundingClientRect();
-                    if (rect.top >= 100 && rect.top <= 300) {
-                        p.classList.add('viewport-highlight');
-                    } else {
-                        p.classList.remove('viewport-highlight');
-                    }
-                });
-            }
-        });
-
-        // YouTube Opacity Slider
-        const slider = document.getElementById('blur-slider');
-        slider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            document.getElementById('opacity-val').innerText = val + "%";
-            const ytCards = document.querySelectorAll('.yt-card');
-            ytCards.forEach(card => {
-                card.style.filter = `blur(${val / 10}px)`;
-            });
-        });
-
-        // Ad Blocker Toggle
-        document.getElementById('toggle-adblock').addEventListener('change', (e) => {
-            const ad = document.getElementById('ad-box-1');
-            if(e.target.checked) {
-                ad.classList.add('blurred');
-                ad.innerText = "🛡️ Ad Blocked & Shielded by FocusFlow Shadow DOM";
-            } else {
-                ad.classList.remove('blurred');
-                ad.innerText = "⚠️ Annoying Pop-up Advertisement";
-            }
-        });
-
-        // Tab Guard Trigger
-        function triggerDistractionTab() {
-            if (document.getElementById('toggle-guard').checked) {
-                document.getElementById('guard-modal').style.display = 'flex';
-            } else {
-                alert("Switched tab without guard protection.");
+        function invitePeer() {
+            const email = prompt("Enter peer email or student ID to sync focus room:");
+            if(email) {
+                alert("Invitation encrypted and sent to " + email + ". Peer joined room successfully!");
+                const peerList = document.getElementById('peer-list');
+                const newPeer = document.createElement('div');
+                newPeer.className = 'peer-badge';
+                newPeer.innerHTML = `<span>${email} (Connected)</span><span style="color:var(--success);">Active</span>`;
+                peerList.appendChild(newPeer);
             }
         }
-
-        function closeGuard(stay) {
-            document.getElementById('guard-modal').style.display = 'none';
-            if (!stay) {
-                // Show recovery bar on return
-                setTimeout(() => {
-                    document.getElementById('recovery-bar').style.display = 'flex';
-                }, 1000);
-            }
-        }
-
-        function restorePosition() {
-            if (lastDwellElement) {
-                lastDwellElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            document.getElementById('recovery-bar').style.display = 'none';
-        }
-
-        // Sandbox Tab Switching
-        function switchSandbox(type) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.workspace').forEach(ws => ws.style.display = 'none');
-
-            if(type === 'news') {
-                document.getElementById('sandbox-news').style.display = 'block';
-                event.target.classList.add('active');
-            } else if(type === 'youtube') {
-                document.getElementById('sandbox-youtube').style.display = 'block';
-                event.target.classList.add('active');
-            } else if(type === 'pdf') {
-                document.getElementById('sandbox-pdf').style.display = 'block';
-                event.target.classList.add('active');
-            }
-        }
-
-        // Initialize default blur
-        slider.dispatchEvent(new Event('input'));
-        document.getElementById('toggle-adblock').dispatchEvent(new Event('change'));
     </script>
 </body>
 </html>
