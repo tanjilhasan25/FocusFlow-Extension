@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FocusFlow: Spatial Context & Focus Engine",
-  "version": "2.0.0",
-  "description": "Intent-driven spatial dwell tracking, cognitive recovery metrics, and non-bypass focus shield engine.",
+  "name": "FocusFlow: Multi-User Context & Shield Engine",
+  "version": "3.0.0",
+  "description": "Spatial dwell tracking, viewport center fallback, YouTube distraction shield, and multi-user room synchronization.",
   "permissions": [
     "storage",
     "activeTab",
@@ -14,7 +14,7 @@
   ],
   "action": {
     "default_popup": "dashboard.html",
-    "default_title": "FocusFlow Cockpit"
+    "default_title": "FocusFlow Dashboard"
   },
   "content_scripts": [
     {
