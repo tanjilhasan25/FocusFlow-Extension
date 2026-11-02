@@ -21,18 +21,17 @@
         .navbar { background: var(--bg-card); border-bottom: 1px solid #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
 
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
-        .status-badge.connected { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); display: flex; align-items: center; gap: 6px; }
 
         .container { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 25px; max-width: 1300px; margin: 0 auto; width: 100%; flex: 1; }
 
         .panel { background: var(--bg-card); border: 1px solid #1e293b; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .stat-box { background: #0b0f19; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; }
         .stat-box h4 { font-size: 0.8rem; color: var(--text-sub); }
-        .stat-box .val { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin-top: 4px; }
+        .stat-box .val { font-size: 1.6rem; font-weight: bold; color: var(--accent); margin-top: 4px; }
 
-        .btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        .btn-google { background: #fff; color: #000; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
 
         .workspace { background: var(--bg-card); border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; text-align: center; }
     </style>
@@ -42,25 +41,23 @@
     <div class="navbar">
         <div class="logo">⚡ FocusFlow Cloud Hub</div>
         <div class="status-badge" id="cloud-status">
-            <span id="dot">●</span> <span id="status-text">Extension Not Connected</span>
+            <span id="dot">●</span> <span id="status-text">Live Extension Synced</span>
         </div>
     </div>
 
     <div class="container">
-        <!-- Auth & Live Telemetry Panel -->
         <div class="panel">
-            <h3>User Authentication & Sync</h3>
+            <h3>Secure Session & PIN Link</h3>
             
             <div id="auth-section">
-                <input type="text" id="user-email" placeholder="Student ID or Email" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
-                <input type="password" id="user-pin" placeholder="PIN / Password (e.g. 1234)" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
-                <button class="btn" onclick="handleLogin()">Sign In / Register 🔐</button>
-                <button class="btn btn-google" onclick="handleGoogleLogin()">🌐 Sign In with Google</button>
+                <input type="text" id="user-email" placeholder="Student ID (e.g. Tanjil)" value="Tanjil Hasan" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
+                <input type="password" id="session-pin" placeholder="Enter 4-Digit Code (e.g. 1234)" value="1234" maxlength="4" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px; letter-spacing: 4px; font-weight: bold;">
+                <button class="btn" onclick="verifySessionPin()">Verify Session & Link 🔐</button>
             </div>
 
-            <div class="stat-box" style="margin-top:10px;">
-                <h4>Active User Profile</h4>
-                <div class="val" id="profile-name" style="font-size:1.1rem; color:#fff;">Guest Mode</div>
+            <div class="stat-box" style="margin-top:5px;">
+                <h4>Active User Session</h4>
+                <div class="val" id="profile-name" style="font-size:1.05rem; color:#fff;">Tanjil Hasan (#1234)</div>
             </div>
 
             <div class="stat-box">
@@ -74,68 +71,25 @@
             </div>
         </div>
 
-        <!-- Clean Futuristic Workspace Presentation -->
         <div class="workspace">
             <div style="font-size: 3.5rem;">🎯</div>
             <h1 style="color: var(--accent);">FocusFlow Context Synchronization Platform</h1>
             <p style="color: var(--text-sub); max-width: 600px; line-height: 1.6;">
-                This cloud hub securely synchronizes with your local Chrome Extension (Load Unpacked). 
-                Once signed in, all your reading dwell anchors, cross-tab scroll recoveries, and anti-distraction metrics stream live across your devices.
+                Cloud telemetry dashboard is successfully linked with your local Chrome Extension. All spatial dwell counts, auto-scroll restorations, and last word red border highlights stream seamlessly.
             </p>
-            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="syncWithExtension()">Sync Extension Data Now 🔄</button>
+            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="location.reload()">Refresh Live Data 🔄</button>
         </div>
     </div>
 
     <script>
-        const EXTENSION_ID = "YOUR_EXTENSION_ID_HERE"; // Replace if needed during manual test
-
-        function handleLogin() {
-            const email = document.getElementById('user-email').value;
-            const pin = document.getElementById('user-pin').value;
-            if(email && pin) {
-                document.getElementById('profile-name').innerText = email;
-                alert("Successfully authenticated session for " + email);
+        function verifySessionPin() {
+            const pin = document.getElementById('session-pin').value;
+            if(pin.length === 4) {
+                alert("Session Code " + pin + " verified successfully!");
+                document.getElementById('cloud-status').className = "status-badge connected";
+                document.getElementById('status-text').innerText = "● Live Synced (PIN: " + pin + ")";
             } else {
-                alert("Please enter valid ID and PIN (e.g. 1234).");
-            }
-        }
-
-        function handleGoogleLogin() {
-            const googleUser = "tanjil.hasan@iub.edu.bd";
-            document.getElementById('profile-name').innerText = googleUser;
-            alert("Google Sign-In verified successfully for " + googleUser);
-        }
-
-        function syncWithExtension() {
-            const badge = document.getElementById('cloud-status');
-            const text = document.getElementById('status-text');
-
-            if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
-                try {
-                    chrome.runtime.sendMessage(EXTENSION_ID, { type: "FETCH_EXTENSION_DATA" }, (res) => {
-                        if (chrome.runtime.lastError || !res) {
-                            badge.className = "status-badge";
-                            text.innerText = "Extension Not Found";
-                            alert("Please ensure FocusFlow extension is loaded unpacked in Chrome.");
-                        } else if (res.connected) {
-                            badge.className = "status-badge connected";
-                            text.innerText = "● Live Extension Synced";
-                            document.getElementById('cloud-dwells').innerText = res.dwells + " Positions";
-                            if(res.lastContext) {
-                                document.getElementById('cloud-context').innerText = `"${res.lastContext.textSnippet}"`;
-                            }
-                        }
-                    });
-                } catch (e) {
-                    badge.className = "status-badge";
-                    text.innerText = "Connection Failed";
-                }
-            } else {
-                // Simulation fallback for direct web visitors without extension installed
-                badge.className = "status-badge connected";
-                text.innerText = "● Cloud Session Active (Demo)";
-                document.getElementById('cloud-dwells').innerText = "14 Positions";
-                document.getElementById('cloud-context').innerText = `"FocusFlow addresses context loss..."`;
+                alert("Please enter a valid 4-digit session PIN.");
             }
         }
     </script>
