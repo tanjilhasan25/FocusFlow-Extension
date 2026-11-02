@@ -1,14 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['focusflow_last_context', 'dwell_count'], (data) => {
-      if (data.focusflow_last_context) {
-        document.getElementById('last-context').innerText = data.focusflow_last_context.textSnippet;
-      }
-      document.getElementById('dwell-count').innerText = data.dwell_count || 0;
-    });
-  }
+  chrome.storage.local.get(['focusflow_live_context', 'dwell_total', 'session_code'], (data) => {
+    if (data.session_code) {
+      document.getElementById('popup-code').innerText = data.session_code;
+    } else {
+      const newCode = Math.floor(1000 + Math.random() * 9000).toString();
+      chrome.storage.local.set({ 'session_code': newCode }, () => {
+        document.getElementById('popup-code').innerText = newCode;
+      });
+    }
+    document.getElementById('ext-dwells').innerText = data.dwell_total || 0;
+  });
 });
 
-function openVercelHub() {
+function openCloudHub() {
   window.open("https://focusflow-extension.vercel.app", "_blank");
 }
