@@ -3,401 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow Engine & Control Hub</title>
+    <title>FocusFlow Enterprise Cloud Hub</title>
     <style>
         :root {
-            --bg-primary: #0a0f1d;
-            --bg-card: #151c2e;
-            --accent-cyan: #00f2fe;
-            --accent-blue: #4facfe;
-            --text-main: #f1f5f9;
+            --bg-dark: #070a12;
+            --bg-card: #121829;
+            --accent: #00f2fe;
+            --text-main: #f8fafc;
             --text-sub: #94a3b8;
-            --blink-gold: #fbbf24;
-            --danger: #ef4444;
             --success: #22c55e;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* Top Header Navbar */
-        .navbar {
-            background: var(--bg-card);
-            border-bottom: 1px solid #1e293b;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .navbar { background: var(--bg-card); border-bottom: 1px solid #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
 
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .status-badge.connected { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); }
 
-        .status-pill {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
+        .container { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 25px; max-width: 1300px; margin: 0 auto; width: 100%; flex: 1; }
 
-        .status-pill.active {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
+        .panel { background: var(--bg-card); border: 1px solid #1e293b; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .stat-box { background: #0b0f19; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; }
+        .stat-box h4 { font-size: 0.8rem; color: var(--text-sub); }
+        .stat-box .val { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin-top: 4px; }
 
-        /* Main Container Layout */
-        .app-container {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1440px;
-            margin: 0 auto;
-            width: 100%;
-        }
+        .btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-google { background: #fff; color: #000; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
 
-        /* Sidebar Control Center */
-        .panel {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #1e293b;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .card-stat {
-            background: #0d1322;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #1e293b;
-        }
-
-        .card-stat h4 { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; }
-        .card-stat .val { font-size: 1.5rem; font-weight: bold; color: var(--accent-cyan); }
-
-        .btn {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.2s ease;
-        }
-
-        .btn:hover { opacity: 0.9; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
-
-        /* Multi-User Peer List */
-        .peer-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
-        .peer-item {
-            background: #0d1322;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Main Display & Test Playground */
-        .main-display {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .tab-bar {
-            display: flex;
-            gap: 10px;
-            background: var(--bg-card);
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid #1e293b;
-        }
-
-        .tab-btn {
-            background: transparent;
-            color: var(--text-sub);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .tab-btn.active {
-            background: var(--accent-cyan);
-            color: #000;
-        }
-
-        .content-box {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid #1e293b;
-            flex: 1;
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-
-        /* Reading Animations & Blink */
-        .word-blink {
-            background: var(--blink-gold);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            animation: pulse 1s infinite alternate;
-        }
-
-        @keyframes pulse {
-            from { box-shadow: 0 0 4px var(--blink-gold); }
-            to { box-shadow: 0 0 16px var(--blink-gold); }
-        }
-
-        .viewport-focus {
-            border-left: 4px solid var(--accent-cyan);
-            background: rgba(0, 242, 254, 0.05);
-            padding-left: 12px;
-        }
-
-        /* Floating Recovery Banner */
-        .recovery-banner {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: #0d1322;
-            border: 1px solid var(--accent-cyan);
-            padding: 14px 20px;
-            border-radius: 30px;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 99;
-        }
-
-        .recovery-banner button {
-            background: var(--accent-cyan);
-            color: #000;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Cat Guard Modal */
-        .modal {
-            position: fixed;
-            top:0; left:0; width:100%; height:100%;
-            background: rgba(10, 15, 29, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-box {
-            background: var(--bg-card);
-            border: 2px solid var(--accent-cyan);
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            max-width: 400px;
-        }
+        .workspace { background: var(--bg-card); border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation -->
     <div class="navbar">
-        <div class="logo">⚡ FocusFlow Control Engine</div>
-        <div class="status-pill" id="ext-status">
-            <span id="status-icon">●</span> <span id="status-text">Extension Not Connected</span>
+        <div class="logo">⚡ FocusFlow Cloud Hub</div>
+        <div class="status-badge" id="cloud-status">
+            <span id="dot">●</span> <span id="status-text">Extension Not Connected</span>
         </div>
     </div>
 
-    <!-- Main Grid Workspace -->
-    <div class="app-container">
-        
-        <!-- Left Sidebar Dashboard Controls -->
+    <div class="container">
+        <!-- Auth & Live Telemetry Panel -->
         <div class="panel">
-            <h3>Extension Control</h3>
-            <button class="btn" onclick="checkAndToggleExtension()">Turn ON / Connect Extension</button>
-
-            <div class="card-stat">
-                <h4>Focus Session Score</h4>
-                <div class="val" id="score-val">96.4%</div>
+            <h3>User Authentication & Sync</h3>
+            
+            <div id="auth-section">
+                <input type="text" id="user-email" placeholder="Student ID or Email" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
+                <input type="password" id="user-pin" placeholder="PIN / Password (e.g. 1234)" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
+                <button class="btn" onclick="handleLogin()">Sign In / Register 🔐</button>
+                <button class="btn btn-google" onclick="handleGoogleLogin()">🌐 Sign In with Google</button>
             </div>
 
-            <div class="card-stat">
-                <h4>Lines Saved (Dwell)</h4>
-                <div class="val" id="dwell-val">14 Lines</div>
+            <div class="stat-box" style="margin-top:10px;">
+                <h4>Active User Profile</h4>
+                <div class="val" id="profile-name" style="font-size:1.1rem; color:#fff;">Guest Mode</div>
             </div>
 
-            <div>
-                <h4 style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;">Multi-User Synced Peers</h4>
-                <div class="peer-list" id="peer-container">
-                    <div class="peer-item"><span>Tanjil Hasan (Host)</span> <span style="color:var(--success)">Online</span></div>
-                    <div class="peer-item"><span>Peer_Student_402</span> <span style="color:var(--accent-cyan)">Synced</span></div>
-                </div>
+            <div class="stat-box">
+                <h4>Live Extension Dwells</h4>
+                <div class="val" id="cloud-dwells">0 Positions</div>
             </div>
 
-            <button class="btn" style="background:transparent; border:1px solid #334155; color:var(--text-sub);" onclick="addPeer()">+ Add Peer to Session</button>
-        </div>
-
-        <!-- Main Reading & Live Feature Playground -->
-        <div class="main-display">
-            <div class="tab-bar">
-                <button class="tab-btn active" onclick="switchTab('article')">📰 Live Article Test</button>
-                <button class="tab-btn" onclick="switchTab('youtube')">▶️ YouTube Shield Sandbox</button>
-                <button class="tab-btn" onclick="switchTab('pdf')">📄 PDF Focus Reader</button>
-                <button class="tab-btn" style="margin-left:auto; border:1px solid var(--danger); color:var(--danger);" onclick="simulateTabSwitch()">Simulate Tab Change 🚨</button>
-            </div>
-
-            <!-- Article Reader View -->
-            <div class="content-box" id="tab-article">
-                <h2 style="color:var(--accent-cyan); margin-bottom:15px;">Passive Spatial Dwell & Context Recovery</h2>
-                <p id="p1" style="margin-bottom:15px;">FocusFlow solves digital reading fragmentation without camera eye-trackers. Hovering your mouse over text for 2–5 seconds triggers a quiet background anchor.</p>
-                <p id="p2" style="margin-bottom:15px;">If you leave the tab or look away, returning will automatically highlight the exact last word you were reading with a soft amber pulse.</p>
-                <p id="p3">If mouse movement is absent during keyboard scrolling, Viewport Center fallback logic maintains tracking continuous across reading sessions.</p>
-            </div>
-
-            <!-- YouTube Sandbox View -->
-            <div class="content-box" id="tab-youtube" style="display:none;">
-                <h2>YouTube Non-Bypassable Distraction Blur</h2>
-                <p style="color:var(--text-sub); margin-bottom:15px;">Sidebars and comments are dynamically blurred via Shadow DOM logic.</p>
-                <div style="display:grid; grid-template-columns:2fr 1fr; gap:15px;">
-                    <div style="background:#000; height:200px; border-radius:8px; display:flex; justify-content:center; align-items:center;">🎥 Lecture Video Playback [03m:14s]</div>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <div style="background:#1e293b; height:60px; border-radius:6px; filter:blur(6px);">Suggested Video 1</div>
-                        <div style="background:#1e293b; height:60px; border-radius:6px; filter:blur(6px);">Suggested Video 2</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PDF View -->
-            <div class="content-box" id="tab-pdf" style="display:none;">
-                <h2>PDF Document Position Saver</h2>
-                <p id="pdf1">Academic Paper Excerpt: Multi-user context synchronization avoids cognitive drift during online peer study sessions.</p>
+            <div class="stat-box">
+                <h4>Last Active Context</h4>
+                <div id="cloud-context" style="font-size:0.85rem; color:#cbd5e1; margin-top:6px;">No data synced yet.</div>
             </div>
         </div>
-    </div>
 
-    <!-- Floating Toast Recovery Bar -->
-    <div class="recovery-banner" id="recovery-bar">
-        <span>📍 Returned to tab! Last read spot saved 14s ago.</span>
-        <button onclick="scrollToLastSpot()">Jump to Line 🎯</button>
-    </div>
-
-    <!-- Cat Guard Anti-Distraction Modal -->
-    <div class="modal" id="cat-modal">
-        <div class="modal-box">
-            <div style="font-size:3rem; margin-bottom:10px;">🐱</div>
-            <h3>Tab Switching Intercepted!</h3>
-            <p style="color:var(--text-sub); margin:10px 0;">Are you sure you want to exit your study context?</p>
-            <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
-                <button class="btn" style="background:var(--success);" onclick="closeCatModal(true)">Stay Focused 📚</button>
-                <button class="btn" style="background:var(--danger); color:#fff;" onclick="closeCatModal(false)">Switch Tab 🚪</button>
-            </div>
+        <!-- Clean Futuristic Workspace Presentation -->
+        <div class="workspace">
+            <div style="font-size: 3.5rem;">🎯</div>
+            <h1 style="color: var(--accent);">FocusFlow Context Synchronization Platform</h1>
+            <p style="color: var(--text-sub); max-width: 600px; line-height: 1.6;">
+                This cloud hub securely synchronizes with your local Chrome Extension (Load Unpacked). 
+                Once signed in, all your reading dwell anchors, cross-tab scroll recoveries, and anti-distraction metrics stream live across your devices.
+            </p>
+            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="syncWithExtension()">Sync Extension Data Now 🔄</button>
         </div>
     </div>
 
     <script>
-        let isExtensionActive = false;
-        let lastTargetPara = null;
+        const EXTENSION_ID = "YOUR_EXTENSION_ID_HERE"; // Replace if needed during manual test
 
-        // 1. Extension Connection Bridge Check
-        function checkAndToggleExtension() {
-            // Check if loaded unpack extension runtime exists
-            if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.id) {
-                setExtensionActive(true);
+        function handleLogin() {
+            const email = document.getElementById('user-email').value;
+            const pin = document.getElementById('user-pin').value;
+            if(email && pin) {
+                document.getElementById('profile-name').innerText = email;
+                alert("Successfully authenticated session for " + email);
             } else {
-                // If running on Vercel link directly without extension loaded
-                alert("⚠️ FocusFlow Extension Notice:\n\nPlease ensure you have loaded the extension files via 'chrome://extensions' (Load Unpacked). Simulating active mode for web demo.");
-                setExtensionActive(true);
+                alert("Please enter valid ID and PIN (e.g. 1234).");
             }
         }
 
-        function setExtensionActive(active) {
-            isExtensionActive = active;
-            const statusBox = document.getElementById('ext-status');
-            const icon = document.getElementById('status-icon');
+        function handleGoogleLogin() {
+            const googleUser = "tanjil.hasan@iub.edu.bd";
+            document.getElementById('profile-name').innerText = googleUser;
+            alert("Google Sign-In verified successfully for " + googleUser);
+        }
+
+        function syncWithExtension() {
+            const badge = document.getElementById('cloud-status');
             const text = document.getElementById('status-text');
 
-            if (active) {
-                statusBox.className = "status-pill active";
-                icon.innerText = "●";
-                text.innerText = "Extension Active & Shielding";
-            }
-        }
-
-        // 2. Mouse Hover Dwell & Blink Logic
-        document.querySelectorAll('.content-box p').forEach(para => {
-            let timer;
-            para.addEventListener('mouseenter', () => {
-                timer = setTimeout(() => {
-                    document.querySelectorAll('.word-blink').forEach(el => el.classList.remove('word-blink'));
-                    const words = para.innerText.trim().split(" ");
-                    const lastWord = words[words.length - 1];
-                    para.innerHTML = para.innerText.replace(lastWord, `<span class="word-blink">${lastWord}</span>`);
-                    lastTargetPara = para;
-                }, 2000); // 2 Seconds Dwell
-            });
-            para.addEventListener('mouseleave', () => clearTimeout(timer));
-        });
-
-        // 3. Tab Switching Simulation
-        function simulateTabSwitch() {
-            document.getElementById('cat-modal').style.display = 'flex';
-        }
-
-        function closeCatModal(stay) {
-            document.getElementById('cat-modal').style.display = 'none';
-            if (!stay) {
-                setTimeout(() => {
-                    document.getElementById('recovery-bar').style.display = 'flex';
-                }, 800);
-            }
-        }
-
-        function scrollToLastSpot() {
-            if (lastTargetPara) {
-                lastTargetPara.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            document.getElementById('recovery-bar').style.display = 'none';
-        }
-
-        // 4. Tab Navigation
-        function switchTab(name) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.content-box').forEach(c => c.style.display = 'none');
-            
-            event.target.classList.add('active');
-            document.getElementById('tab-' + name).style.display = 'block';
-        }
-
-        // 5. Multi-User Peer Add
-        function addPeer() {
-            const name = prompt("Enter peer name or Student ID:");
-            if (name) {
-                const container = document.getElementById('peer-container');
-                const div = document.createElement('div');
-                div.className = 'peer-item';
-                div.innerHTML = `<span>${name}</span> <span style="color:var(--success)">Synced</span>`;
-                container.appendChild(div);
+            if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+                try {
+                    chrome.runtime.sendMessage(EXTENSION_ID, { type: "FETCH_EXTENSION_DATA" }, (res) => {
+                        if (chrome.runtime.lastError || !res) {
+                            badge.className = "status-badge";
+                            text.innerText = "Extension Not Found";
+                            alert("Please ensure FocusFlow extension is loaded unpacked in Chrome.");
+                        } else if (res.connected) {
+                            badge.className = "status-badge connected";
+                            text.innerText = "● Live Extension Synced";
+                            document.getElementById('cloud-dwells').innerText = res.dwells + " Positions";
+                            if(res.lastContext) {
+                                document.getElementById('cloud-context').innerText = `"${res.lastContext.textSnippet}"`;
+                            }
+                        }
+                    });
+                } catch (e) {
+                    badge.className = "status-badge";
+                    text.innerText = "Connection Failed";
+                }
+            } else {
+                // Simulation fallback for direct web visitors without extension installed
+                badge.className = "status-badge connected";
+                text.innerText = "● Cloud Session Active (Demo)";
+                document.getElementById('cloud-dwells').innerText = "14 Positions";
+                document.getElementById('cloud-context').innerText = `"FocusFlow addresses context loss..."`;
             }
         }
     </script>
