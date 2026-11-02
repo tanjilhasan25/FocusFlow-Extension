@@ -41,23 +41,23 @@
     <div class="navbar">
         <div class="logo">⚡ FocusFlow Cloud Hub</div>
         <div class="status-badge" id="cloud-status">
-            <span id="dot">●</span> <span id="status-text">Live Extension Synced</span>
+            <span id="dot">●</span> <span id="status-text">Live Extension Connected</span>
         </div>
     </div>
 
     <div class="container">
         <div class="panel">
-            <h3>Secure Session & PIN Link</h3>
+            <h3>Extension Live Sync Code</h3>
             
             <div id="auth-section">
-                <input type="text" id="user-email" placeholder="Student ID (e.g. Tanjil)" value="Tanjil Hasan" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px;">
-                <input type="password" id="session-pin" placeholder="Enter 4-Digit Code (e.g. 1234)" value="1234" maxlength="4" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px; letter-spacing: 4px; font-weight: bold;">
-                <button class="btn" onclick="verifySessionPin()">Verify Session & Link 🔐</button>
+                <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;">Enter the 4-digit code shown in your Chrome Extension popup:</p>
+                <input type="text" id="input-session-code" placeholder="e.g. 4920" maxlength="4" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px; letter-spacing: 4px; font-weight: bold; text-align: center; font-size: 1.2rem;">
+                <button class="btn" onclick="verifySessionCode()">Verify & Sync Live Data 🔐</button>
             </div>
 
             <div class="stat-box" style="margin-top:5px;">
-                <h4>Active User Session</h4>
-                <div class="val" id="profile-name" style="font-size:1.05rem; color:#fff;">Tanjil Hasan (#1234)</div>
+                <h4>Auto-Detected Session Code</h4>
+                <div class="val" id="display-session-code" style="font-size:1.2rem; color:#fbbf24; letter-spacing: 3px;">Auto-Syncing...</div>
             </div>
 
             <div class="stat-box">
@@ -75,21 +75,22 @@
             <div style="font-size: 3.5rem;">🎯</div>
             <h1 style="color: var(--accent);">FocusFlow Context Synchronization Platform</h1>
             <p style="color: var(--text-sub); max-width: 600px; line-height: 1.6;">
-                Cloud telemetry dashboard is successfully linked with your local Chrome Extension. All spatial dwell counts, auto-scroll restorations, and last word red border highlights stream seamlessly.
+                The extension popup automatically displays your unique 4-digit session code. Entering it here links the live browser metrics securely to this cloud dashboard for your presentation.
             </p>
-            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="location.reload()">Refresh Live Data 🔄</button>
+            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="location.reload()">Refresh Live Connection 🔄</button>
         </div>
     </div>
 
     <script>
-        function verifySessionPin() {
-            const pin = document.getElementById('session-pin').value;
-            if(pin.length === 4) {
-                alert("Session Code " + pin + " verified successfully!");
+        function verifySessionCode() {
+            const inputCode = document.getElementById('input-session-code').value;
+            const activeCode = document.getElementById('display-session-code').innerText;
+            if(inputCode && inputCode === activeCode) {
+                alert("Session Code " + inputCode + " verified successfully! Live data loaded.");
                 document.getElementById('cloud-status').className = "status-badge connected";
-                document.getElementById('status-text').innerText = "● Live Synced (PIN: " + pin + ")";
+                document.getElementById('status-text').innerText = "● Live Extension Connected (" + inputCode + ")";
             } else {
-                alert("Please enter a valid 4-digit session PIN.");
+                alert("Please enter the exact 4-digit code shown in your extension popup.");
             }
         }
     </script>
