@@ -1,26 +1,14 @@
-.focusflow-word-blink {
-  background-color: #fbbf24 !important;
-  color: #000000 !important;
+.focusflow-red-border-blink {
+  border: 2px solid #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #ffffff !important;
   padding: 2px 6px !important;
   border-radius: 4px !important;
   font-weight: bold !important;
-  animation: focusPulse 1s infinite alternate !important;
+  animation: redBorderPulse 1s infinite alternate ease-in-out !important;
 }
 
-@keyframes focusPulse {
-  from { box-shadow: 0 0 4px #fbbf24; }
-  to { box-shadow: 0 0 18px #fbbf24; }
-}
-
-#focusflow-hud-toast {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #0f172a;
-  border: 1px solid #00f2fe;
-  color: #e2e8f0;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-family: sans-serif;
-  z-index: 999999;
+@keyframes redBorderPulse {
+  0% { border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 0 3px rgba(239, 68, 68, 0.2); }
+  100% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
 }
