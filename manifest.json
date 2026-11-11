@@ -1,19 +1,37 @@
 {
   "manifest_version": 3,
   "name": "FocusFlow: Real Context Engine",
-  "version": "11.0.0",
+  "version": "11.1.0",
   "description": "Exact word dwell tracking, auto-scroll recovery, and YouTube focus shield.",
-  "permissions": ["storage", "activeTab", "tabs", "scripting"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.vercel.app/*",
+      "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "https://focusflow-extension.vercel.app/*",
         "http://localhost/*",
-        "<all_urls>"
+        "http://127.0.0.1/*"
       ],
       "js": ["content.js"],
-      "css": ["style.css"]
+      "css": ["style.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.youtube.com/*"],
+      "css": ["youtube.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://focusflow-extension.vercel.app/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
