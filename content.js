@@ -1,124 +1,154 @@
 let dwellTimer = null;
 let lastTarget = null;
+let isMouseActive = false;
+let mouseMoveTimeout = null;
 
-// 1. Mouse Dwell Tracking (Exact 3 Seconds)
+// 1. Precise Mouse Dwell & Keyboard Detection
 document.addEventListener('mousemove', (e) => {
+  isMouseActive = true;
+  clearTimeout(mouseMoveTimeout);
+  
+  mouseMoveTimeout = setTimeout(() => {
+    isMouseActive = false;
+  }, 2500);
+
   const target = document.elementFromPoint(e.clientX, e.clientY);
   if (target && isReadable(target)) {
     if (lastTarget !== target) {
       clearTimeout(dwellTimer);
       lastTarget = target;
+      
+      // Exactly 5 seconds dwell for mouse
       dwellTimer = setTimeout(() => {
-        saveReadingContext(target);
-      }, 3000);
+        saveReadingContext(target, 'MOUSE');
+      }, 5000);
     }
   }
 });
 
-// Viewport Fallback for Keyboard Arrow Users
+// Viewport Fallback for Keyboard Arrow Navigation (No Mouse on text)
 window.addEventListener('scroll', () => {
-  const paras = document.querySelectorAll('p, h1, h2, h3, article');
-  for (let p of paras) {
-    const rect = p.getBoundingClientRect();
-    if (rect.top >= 100 && rect.top <= 300) {
-      saveReadingContext(p);
-      break;
+  if (!isMouseActive) {
+    const elements = document.querySelectorAll('p, h1, h2, h3, article');
+    for (let el of elements) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top >= 100 && rect.top <= 350) {
+        saveReadingContext(el, 'KEYBOARD');
+        break;
+      }
     }
   }
 });
 
 function isReadable(el) {
-  const tags = ['P', 'H1', 'H2', 'H3', 'ARTICLE', 'SECTION', 'DIV'];
-  return tags.includes(el.tagName) && el.innerText && el.innerText.trim().length > 15;
+  const tags = ['P', 'H1', 'H2', 'H3', 'ARTICLE', 'SECTION', 'SPAN'];
+  return tags.includes(el.tagName) && el.innerText && el.innerText.trim().length > 5;
 }
 
-function saveReadingContext(el) {
+function saveReadingContext(el, mode) {
   const text = el.innerText.trim();
-  const words = text.split(" ");
-  const lastWord = words[words.length - 1];
+  let targetWord = "";
+
+  if (mode === 'MOUSE') {
+    // Extract exact single word where mouse stayed
+    const words = text.split(/\s+/);
+    targetWord = words[Math.floor(words.length / 2)] || words[words.length - 1];
+  }
 
   const contextData = {
     url: window.location.href,
-    title: document.title,
-    lastWord: lastWord,
-    textSnippet: text.substring(0, 50) + '...',
+    mode: mode, // 'MOUSE' or 'KEYBOARD'
+    targetWord: targetWord,
+    fullSentence: text.substring(0, 90) + '...',
     scrollY: window.scrollY,
     timestamp: Date.now()
   };
 
   chrome.storage.local.set({ 'focusflow_live_context': contextData }, () => {
     chrome.storage.local.get(['dwell_total'], (res) => {
-      const updatedTotal = (res.dwell_total || 0) + 1;
-      chrome.storage.local.set({ 'dwell_total': updatedTotal });
+      chrome.storage.local.set({ 'dwell_total': (res.dwell_total || 0) + 1 });
     });
   });
 }
 
-// 2. Tab Return Recovery (Auto Scroll + 3 Second Red Border Blink)
+// 2. Tab Return: Auto-Scroll Recovery & 2-3 Sec Pulsing Border Blink
 window.addEventListener('focus', () => {
   chrome.storage.local.get(['focusflow_live_context'], (res) => {
     const data = res.focusflow_live_context;
     if (data && data.url === window.location.href) {
-      // Auto Scroll up or down to saved reading position
+      // Auto Scroll to exact saved Y position (up or down automatically)
       window.scrollTo({ top: data.scrollY, behavior: 'smooth' });
 
-      // Highlight the exact last word with a subtle border for ONLY 3 Seconds
-      const elements = document.querySelectorAll('p, h1, h2, h3, article');
-      elements.forEach(el => {
-        if (el.innerText.includes(data.lastWord) && !el.querySelector('.focusflow-border-pulse')) {
-          el.innerHTML = el.innerHTML.replace(
-            data.lastWord,
-            `<span class="focusflow-border-pulse">${data.lastWord}</span>`
-          );
+      setTimeout(() => {
+        const elements = document.querySelectorAll('p, h1, h2, h3, article, span');
+        elements.forEach(el => {
+          if (data.mode === 'MOUSE' && data.targetWord) {
+            // CASE 1: Mouse Mode -> Highlight ONLY the exact word
+            if (el.innerText.includes(data.targetWord) && !el.querySelector('.focusflow-word-pulse')) {
+              el.innerHTML = el.innerHTML.replace(
+                data.targetWord,
+                `<span class="focusflow-word-pulse">${data.targetWord}</span>`
+              );
 
-          // Auto-remove blinking effect strictly after 3 seconds
-          setTimeout(() => {
-            const span = el.querySelector('.focusflow-border-pulse');
-            if (span) {
-              span.outerHTML = span.innerText;
+              // Remove blinking strictly after 3 seconds
+              setTimeout(() => {
+                const span = el.querySelector('.focusflow-word-pulse');
+                if (span) span.outerHTML = span.innerText;
+              }, 3000);
             }
-          }, 3000);
-        }
-      });
+          } else if (data.mode === 'KEYBOARD') {
+            // CASE 2: Keyboard Mode -> Highlight Full Sentence/Paragraph
+            if (el.innerText.includes(data.fullSentence.substring(0, 30))) {
+              if (!el.classList.contains('focusflow-sentence-pulse')) {
+                el.classList.add('focusflow-sentence-pulse');
+
+                // Remove blinking strictly after 3 seconds
+                setTimeout(() => {
+                  el.classList.remove('focusflow-sentence-pulse');
+                }, 3000);
+              }
+            }
+          }
+        });
+      }, 400);
     }
   });
 });
 
-// 3. YouTube Hard Shielding (No Unblur on Mouse Hover)
+// 3. YouTube Real Blur Shield (Non-bypassable, clear blur effect)
 if (window.location.hostname.includes('youtube.com')) {
-  const style = document.createElement('style');
-  style.innerHTML = `
+  const ytStyle = document.createElement('style');
+  ytStyle.innerHTML = `
     #related, ytd-watch-next-secondary-results-renderer, #comments, ytd-reel-shelf-renderer, ytd-rich-grid-renderer {
-      filter: blur(16px) opacity(0.15) !important;
+      filter: blur(15px) !important;
+      opacity: 0.55 !important;
       pointer-events: none !important;
     }
   `;
-  document.head.appendChild(style);
+  document.head.appendChild(ytStyle);
 }
 
-// 4. Live Bridge for Vercel Dashboard Sync
+// 4. Live Vercel Dashboard Sync Bridge
 if (window.location.hostname.includes('vercel.app')) {
-  setInterval(syncVercelDashboard, 800);
-}
+  setInterval(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['focusflow_live_context', 'dwell_total'], (data) => {
+        const badge = document.getElementById('cloud-status');
+        const text = document.getElementById('status-text');
+        const dwellEl = document.getElementById('cloud-dwells');
+        const contextEl = document.getElementById('cloud-context');
 
-function syncVercelDashboard() {
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['focusflow_live_context', 'dwell_total'], (data) => {
-      const statusBadge = document.getElementById('cloud-status');
-      const statusText = document.getElementById('status-text');
-      const dwellEl = document.getElementById('cloud-dwells');
-      const contextEl = document.getElementById('cloud-context');
-
-      if (statusBadge && statusText) {
-        statusBadge.className = "status-badge connected";
-        statusText.innerText = "● Live Extension Connected";
-      }
-      if (dwellEl) {
-        dwellEl.innerText = (data.dwell_total || 0) + " Dwells Anchored";
-      }
-      if (contextEl && data.focusflow_live_context) {
-        contextEl.innerText = `"${data.focusflow_live_context.textSnippet}"`;
-      }
-    });
-  }
+        if (badge && text) {
+          badge.className = "status-badge connected";
+          text.innerText = "● Live Extension Connected";
+        }
+        if (dwellEl) {
+          dwellEl.innerText = (data.dwell_total || 0) + " Dwells Anchored";
+        }
+        if (contextEl && data.focusflow_live_context) {
+          contextEl.innerText = `[Mode: ${data.focusflow_live_context.mode}] "${data.focusflow_live_context.fullSentence}"`;
+        }
+      });
+    }
+  }, 1000);
 }
