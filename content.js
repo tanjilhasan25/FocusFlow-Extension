@@ -1,6 +1,7 @@
 let dwellTimer = null;
 let lastTarget = null;
 
+// 1. Mouse Dwell Tracking (Exact 3 Seconds)
 document.addEventListener('mousemove', (e) => {
   const target = document.elementFromPoint(e.clientX, e.clientY);
   if (target && isReadable(target)) {
@@ -14,6 +15,7 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
+// Viewport Fallback for Keyboard Arrow Users
 window.addEventListener('scroll', () => {
   const paras = document.querySelectorAll('p, h1, h2, h3, article');
   for (let p of paras) {
@@ -44,67 +46,78 @@ function saveReadingContext(el) {
     timestamp: Date.now()
   };
 
-  chrome.storage.local.get(['session_code'], (res) => {
-    if (!res.session_code) {
-      const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
-      chrome.storage.local.set({ 'session_code': randomCode });
-    }
-  });
-
   chrome.storage.local.set({ 'focusflow_live_context': contextData }, () => {
     chrome.storage.local.get(['dwell_total'], (res) => {
-      chrome.storage.local.set({ 'dwell_total': (res.dwell_total || 0) + 1 });
+      const updatedTotal = (res.dwell_total || 0) + 1;
+      chrome.storage.local.set({ 'dwell_total': updatedTotal });
     });
   });
 }
 
+// 2. Tab Return Recovery (Auto Scroll + 3 Second Red Border Blink)
 window.addEventListener('focus', () => {
   chrome.storage.local.get(['focusflow_live_context'], (res) => {
     const data = res.focusflow_live_context;
     if (data && data.url === window.location.href) {
+      // Auto Scroll up or down to saved reading position
       window.scrollTo({ top: data.scrollY, behavior: 'smooth' });
 
+      // Highlight the exact last word with a subtle border for ONLY 3 Seconds
       const elements = document.querySelectorAll('p, h1, h2, h3, article');
       elements.forEach(el => {
-        if (el.innerText.includes(data.lastWord)) {
-          if (!el.innerHTML.includes('focusflow-red-border-blink')) {
-            el.innerHTML = el.innerHTML.replace(
-              data.lastWord, 
-              `<span class="focusflow-red-border-blink">${data.lastWord}</span>`
-            );
-          }
+        if (el.innerText.includes(data.lastWord) && !el.querySelector('.focusflow-border-pulse')) {
+          el.innerHTML = el.innerHTML.replace(
+            data.lastWord,
+            `<span class="focusflow-border-pulse">${data.lastWord}</span>`
+          );
+
+          // Auto-remove blinking effect strictly after 3 seconds
+          setTimeout(() => {
+            const span = el.querySelector('.focusflow-border-pulse');
+            if (span) {
+              span.outerHTML = span.innerText;
+            }
+          }, 3000);
         }
       });
     }
   });
 });
 
-// Auto Sync with Vercel Dashboard via Content Script Injection
-if (window.location.hostname.includes('vercel.app')) {
-  setTimeout(autoSyncVercel, 800);
+// 3. YouTube Hard Shielding (No Unblur on Mouse Hover)
+if (window.location.hostname.includes('youtube.com')) {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    #related, ytd-watch-next-secondary-results-renderer, #comments, ytd-reel-shelf-renderer, ytd-rich-grid-renderer {
+      filter: blur(16px) opacity(0.15) !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.head.appendChild(style);
 }
 
-function autoSyncVercel() {
+// 4. Live Bridge for Vercel Dashboard Sync
+if (window.location.hostname.includes('vercel.app')) {
+  setInterval(syncVercelDashboard, 800);
+}
+
+function syncVercelDashboard() {
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['focusflow_live_context', 'dwell_total', 'session_code'], (data) => {
-      const badge = document.getElementById('cloud-status');
-      const text = document.getElementById('status-text');
+    chrome.storage.local.get(['focusflow_live_context', 'dwell_total'], (data) => {
+      const statusBadge = document.getElementById('cloud-status');
+      const statusText = document.getElementById('status-text');
       const dwellEl = document.getElementById('cloud-dwells');
       const contextEl = document.getElementById('cloud-context');
-      const codeDisplay = document.getElementById('display-session-code');
 
-      if (badge && text) {
-        badge.className = "status-badge connected";
-        text.innerText = "● Live Extension Connected";
+      if (statusBadge && statusText) {
+        statusBadge.className = "status-badge connected";
+        statusText.innerText = "● Live Extension Connected";
       }
       if (dwellEl) {
-        dwellEl.innerText = (data.dwell_total || 0) + " Positions";
+        dwellEl.innerText = (data.dwell_total || 0) + " Dwells Anchored";
       }
       if (contextEl && data.focusflow_live_context) {
         contextEl.innerText = `"${data.focusflow_live_context.textSnippet}"`;
-      }
-      if (codeDisplay && data.session_code) {
-        codeDisplay.innerText = data.session_code;
       }
     });
   }
