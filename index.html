@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow Enterprise Cloud Hub</title>
+    <title>FocusFlow Live Enterprise Hub</title>
     <style>
         :root {
             --bg-dark: #070a12;
@@ -30,8 +30,7 @@
         .stat-box h4 { font-size: 0.8rem; color: var(--text-sub); }
         .stat-box .val { font-size: 1.6rem; font-weight: bold; color: var(--accent); margin-top: 4px; }
 
-        .btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+        .btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
 
         .workspace { background: var(--bg-card); border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; text-align: center; }
     </style>
@@ -39,60 +38,37 @@
 <body>
 
     <div class="navbar">
-        <div class="logo">⚡ FocusFlow Cloud Hub</div>
+        <div class="logo">⚡ FocusFlow Enterprise Hub</div>
         <div class="status-badge" id="cloud-status">
-            <span id="dot">●</span> <span id="status-text">Live Extension Connected</span>
+            <span id="dot">●</span> <span id="status-text">Extension Live Connected</span>
         </div>
     </div>
 
     <div class="container">
         <div class="panel">
-            <h3>Extension Live Sync Code</h3>
+            <h3>Real-Time Cloud Telemetry</h3>
             
-            <div id="auth-section">
-                <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:8px;">Enter the 4-digit code shown in your Chrome Extension popup:</p>
-                <input type="text" id="input-session-code" placeholder="e.g. 4920" maxlength="4" style="width:100%; padding:10px; background:#0b0f19; border:1px solid #1e293b; color:#fff; border-radius:6px; margin-bottom:10px; letter-spacing: 4px; font-weight: bold; text-align: center; font-size: 1.2rem;">
-                <button class="btn" onclick="verifySessionCode()">Verify & Sync Live Data 🔐</button>
-            </div>
-
-            <div class="stat-box" style="margin-top:5px;">
-                <h4>Auto-Detected Session Code</h4>
-                <div class="val" id="display-session-code" style="font-size:1.2rem; color:#fbbf24; letter-spacing: 3px;">Auto-Syncing...</div>
+            <div class="stat-box">
+                <h4>Total Captured Dwells</h4>
+                <div class="val" id="cloud-dwells">0 Dwells Anchored</div>
             </div>
 
             <div class="stat-box">
-                <h4>Live Extension Dwells</h4>
-                <div class="val" id="cloud-dwells">0 Positions</div>
-            </div>
-
-            <div class="stat-box">
-                <h4>Last Active Context</h4>
-                <div id="cloud-context" style="font-size:0.85rem; color:#cbd5e1; margin-top:6px;">No data synced yet.</div>
+                <h4>Last Synced Reading Anchor</h4>
+                <div id="cloud-context" style="font-size:0.85rem; color:#cbd5e1; margin-top:6px; line-height:1.4;">
+                    Waiting for active browser reading session...
+                </div>
             </div>
         </div>
 
         <div class="workspace">
             <div style="font-size: 3.5rem;">🎯</div>
-            <h1 style="color: var(--accent);">FocusFlow Context Synchronization Platform</h1>
+            <h1 style="color: var(--accent);">FocusFlow Live Context Bridge</h1>
             <p style="color: var(--text-sub); max-width: 600px; line-height: 1.6;">
-                The extension popup automatically displays your unique 4-digit session code. Entering it here links the live browser metrics securely to this cloud dashboard for your presentation.
+                This cloud dashboard automatically streams your active browser reading telemetry directly from your local Chrome Extension.
             </p>
-            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="location.reload()">Refresh Live Connection 🔄</button>
+            <button class="btn" style="width: auto; padding: 12px 30px;" onclick="location.reload()">Refresh Telemetry 🔄</button>
         </div>
     </div>
-
-    <script>
-        function verifySessionCode() {
-            const inputCode = document.getElementById('input-session-code').value;
-            const activeCode = document.getElementById('display-session-code').innerText;
-            if(inputCode && inputCode === activeCode) {
-                alert("Session Code " + inputCode + " verified successfully! Live data loaded.");
-                document.getElementById('cloud-status').className = "status-badge connected";
-                document.getElementById('status-text').innerText = "● Live Extension Connected (" + inputCode + ")";
-            } else {
-                alert("Please enter the exact 4-digit code shown in your extension popup.");
-            }
-        }
-    </script>
 </body>
 </html>
