@@ -1,0 +1,11 @@
+/* YouTube focus shield: blur recommendations and comments.
+   Loaded by the manifest on youtube.com at document_start, so nothing flashes unblurred. */
+#related,
+ytd-watch-next-secondary-results-renderer,
+#comments,
+ytd-reel-shelf-renderer,
+ytd-browse[page-subtype="home"] ytd-rich-grid-renderer {
+  filter: blur(15px) !important;
+  opacity: 0.55 !important;
+  pointer-events: none !important;
+}
