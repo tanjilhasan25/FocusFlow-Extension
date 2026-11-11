@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FocusFlow: Real Context Engine",
-  "version": "8.0.0",
-  "description": "Spatial dwell tracking, auto-scroll recovery, YouTube focus shield, and live cloud telemetry bridge.",
+  "version": "11.0.0",
+  "description": "Exact word dwell tracking, auto-scroll recovery, and YouTube focus shield.",
   "permissions": ["storage", "activeTab", "tabs", "scripting"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
