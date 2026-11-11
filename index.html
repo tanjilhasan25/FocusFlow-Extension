@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +20,8 @@
         .navbar { background: var(--bg-card); border-bottom: 1px solid #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
 
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); display: flex; align-items: center; gap: 6px; }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(148, 163, 184, 0.12); color: var(--text-sub); border: 1px solid var(--text-sub); display: flex; align-items: center; gap: 6px; }
+        .status-badge.connected { background: rgba(34, 197, 94, 0.15); color: var(--success); border-color: var(--success); }
 
         .container { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 25px; max-width: 1300px; margin: 0 auto; width: 100%; flex: 1; }
 
@@ -38,7 +39,7 @@
     <div class="navbar">
         <div class="logo">⚡ FocusFlow Enterprise Hub</div>
         <div class="status-badge" id="cloud-status">
-            <span id="dot">●</span> <span id="status-text">Extension Live Connected</span>
+            <span id="status-text">● Waiting for extension…</span>
         </div>
     </div>
 
