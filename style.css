@@ -1,22 +1,40 @@
-/* Exact Word Pulsing Border (Mouse Mode) */
-.focusflow-word-pulse {
+/* FocusFlow pulse overlay.
+   The boxes are drawn on top of the page (fixed position), so the page's own
+   text and layout are never touched or shifted. */
+#focusflow-overlay-root {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important;
+}
+
+.focusflow-pulse-box {
+  position: fixed !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  pointer-events: none !important;
   border: 2px solid #ef4444 !important;
-  background-color: transparent !important;
-  padding: 1px 4px !important;
+  animation: focusflowBlink 0.6s ease-in-out infinite alternate !important;
+}
+
+/* Exact word (mouse mode) */
+.focusflow-pulse-word {
   border-radius: 4px !important;
-  animation: borderBlink 0.6s ease-in-out infinite alternate !important;
+  background: transparent !important;
 }
 
-/* Full Sentence Pulsing Border (Keyboard Mode) */
-.focusflow-sentence-pulse {
-  border: 2px solid #ef4444 !important;
-  background-color: rgba(239, 68, 68, 0.04) !important;
+/* Whole paragraph / sentence (keyboard mode) */
+.focusflow-pulse-block {
   border-radius: 6px !important;
-  padding: 6px !important;
-  animation: borderBlink 0.6s ease-in-out infinite alternate !important;
+  background: rgba(239, 68, 68, 0.04) !important;
 }
 
-@keyframes borderBlink {
-  0% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 2px rgba(239, 68, 68, 0.2); }
-  100% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
+@keyframes focusflowBlink {
+  0%   { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 2px rgba(239, 68, 68, 0.2); }
+  100% { border-color: rgba(239, 68, 68, 1);   box-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
 }
