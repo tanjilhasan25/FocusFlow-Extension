@@ -4,33 +4,28 @@
   <meta charset="UTF-8">
   <title>FocusFlow Cockpit</title>
   <style>
-    body { width: 340px; margin: 0; padding: 16px; background: #0a0f1d; color: #f8fafc; font-family: sans-serif; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; margin-bottom: 12px; }
-    .title { color: #00f2fe; font-weight: bold; font-size: 15px; }
-    .card { background: #151c2e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .val { font-size: 18px; font-weight: bold; color: #00f2fe; margin-top: 4px; }
-    .code-box { font-size: 20px; font-weight: bold; color: #fbbf24; background: #0b0f19; padding: 8px; border-radius: 6px; text-align: center; letter-spacing: 3px; border: 1px dashed #fbbf24; margin-top: 5px; }
-    .btn { width: 100%; padding: 10px; background: #00f2fe; color: #000; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 6px; }
+    body { width: 320px; margin: 0; padding: 14px; background: #0a0f1d; color: #f8fafc; font-family: sans-serif; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 10px; }
+    .title { color: #00f2fe; font-weight: bold; font-size: 14px; }
+    .card { background: #151c2e; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+    .val { font-size: 18px; font-weight: bold; color: #00f2fe; margin-top: 2px; }
+    .btn { width: 100%; padding: 10px; background: #00f2fe; color: #000; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="title">⚡ FocusFlow Extension</div>
-    <span style="color:#22c55e; font-size:12px;">● Active</span>
+    <div class="title">⚡ FocusFlow Local Cockpit</div>
+    <span style="color:#22c55e; font-size:11px;">● Active</span>
   </div>
-
   <div class="card">
-    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Live Session Link Code</div>
-    <div class="code-box" id="popup-code">----</div>
-    <div style="font-size: 10px; color: #94a3b8; margin-top: 4px; text-align: center;">Use this code to verify sync on Vercel hub</div>
+    <div style="font-size:10px; color:#94a3b8; text-transform:uppercase;">Last Reading Anchor</div>
+    <div id="ext-context" style="font-size:11px; color:#cbd5e1; margin-top:4px;">Waiting for dwell...</div>
   </div>
-
   <div class="card">
-    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Total Dwell Anchors</div>
+    <div style="font-size:10px; color:#94a3b8; text-transform:uppercase;">Total Local Dwells</div>
     <div class="val" id="ext-dwells">0</div>
   </div>
-
-  <button class="btn" onclick="openCloudHub()">Open Cloud Hub (Vercel) 🚀</button>
+  <button class="btn" onclick="openCloudHub()">Open Vercel Live Hub 🚀</button>
   <script src="dashboard.js"></script>
 </body>
 </html>
